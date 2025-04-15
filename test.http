@@ -1,0 +1,44 @@
+### Create Flight
+POST http://localhost:3000/flights
+Content-Type: application/json
+
+{
+  "id": "QX2036-Z",
+  "flightNumber": "2036",
+  "status": "Delayed",
+  "departureTime": "2025-04-15T15:00:00Z",
+  "arrivalTime": "2025-04-15T18:00:00Z",
+  "createdAt": "2025-04-14T10:00:00Z",
+  "updatedAt": "2025-04-14T10:00:00Z"
+}
+
+### Create Rule
+POST http://localhost:3000/rules
+Content-Type: application/json
+
+{
+  "id": "delay30",
+  "name": "Delay Alert",
+  "condition": {
+    "status": "Delayed",
+    "beforeDepartureMins": 60
+  },
+  "messageTemplate": "Flight {{flightNumber}} is delayed. Current status: {{status}}.",
+  "isActive": true,
+  "createdAt": "2025-04-14T10:00:00Z",
+  "updatedAt": "2025-04-14T10:00:00Z"
+}
+
+### Evaluate Rules for Flight
+POST http://localhost:3000/evaluate
+Content-Type: application/json
+
+{
+  "flightId": "QX2036-Z"
+}
+
+### Get Flight by ID
+GET http://localhost:3000/flights/QX2036-Z
+
+### Get All Rules
+GET http://localhost:3000/rules

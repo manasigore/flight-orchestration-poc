@@ -1,4 +1,3 @@
-// src/plugins/db.ts
 import fastifyPlugin from "fastify-plugin";
 import Database from "better-sqlite3";
 import { FastifyInstance } from "fastify";

@@ -1,44 +1,149 @@
-### Create Flight
-POST http://localhost:3000/flights
+### Delete all flights
+DELETE http://localhost:3001/flights HTTP/1.1
+
+### Create a Flight
+POST http://localhost:3001/flights HTTP/1.1
 Content-Type: application/json
 
 {
-  "id": "QX2036-Z",
-  "flightNumber": "2036",
-  "status": "Delayed",
-  "departureTime": "2025-04-15T15:00:00Z",
-  "arrivalTime": "2025-04-15T18:00:00Z",
-  "createdAt": "2025-04-14T10:00:00Z",
-  "updatedAt": "2025-04-14T10:00:00Z"
-}
-
-### Create Rule
-POST http://localhost:3000/rules
-Content-Type: application/json
-
-{
-  "id": "delay30",
-  "name": "Delay Alert",
-  "condition": {
+    "id": "BA201",
+    "flightNumber": "BA201",
     "status": "Delayed",
-    "beforeDepartureMins": 60
-  },
-  "messageTemplate": "Flight {{flightNumber}} is delayed. Current status: {{status}}.",
-  "isActive": true,
-  "createdAt": "2025-04-14T10:00:00Z",
-  "updatedAt": "2025-04-14T10:00:00Z"
+    "departureTime": "2025-04-15T10:00:00Z",
+    "arrivalTime": "2025-04-15T12:00:00Z",
+    "createdAt": "2025-04-15T09:00:00Z",
+    "updatedAt": "2025-04-15T09:00:00Z"
 }
 
-### Evaluate Rules for Flight
-POST http://localhost:3000/evaluate
-Content-Type: application/json
+# {
+#     "id": "BA202",
+#     "flightNumber": "BA202",
+#     "status": "On-Time",
+#     "departureTime": "2025-04-15T10:00:00Z",
+#     "arrivalTime": "2025-04-15T12:00:00Z",
+#     "createdAt": "2025-04-15T09:00:00Z",
+#     "updatedAt": "2025-04-15T09:00:00Z"
+# }
 
-{
-  "flightId": "QX2036-Z"
-}
+# {
+#     "id": "BA203",
+#     "flightNumber": "BA203",
+#     "status": "Wifi-Down",
+#     "departureTime": "2025-04-15T10:00:00Z",
+#     "arrivalTime": "2025-04-15T12:00:00Z",
+#     "createdAt": "2025-04-15T09:00:00Z",
+#     "updatedAt": "2025-04-15T09:00:00Z"
+# }
+
+# {
+#     "id": "BA204",
+#     "flightNumber": "BA204",
+#     "status": "Wifi-Down",
+#     "departureTime": "2025-04-15T10:00:00Z",
+#     "arrivalTime": "2025-04-15T12:00:00Z",
+#     "createdAt": "2025-04-15T09:00:00Z",
+#     "updatedAt": "2025-04-15T09:00:00Z"
+# }
+
+### Get All flights
+GET http://localhost:3001/flights HTTP/1.1
 
 ### Get Flight by ID
-GET http://localhost:3000/flights/QX2036-Z
+GET http://localhost:3001/flights/BA203
 
-### Get All Rules
-GET http://localhost:3000/rules
+### Update a Flight
+PUT http://localhost:3001/flights/BA202
+Content-Type: application/json
+
+{
+    "id": "BA202",
+    "flightNumber": "BA202",
+    "status": "On-Time",
+    "departureTime": "2025-04-15T11:00:00Z",
+    "arrivalTime": "2025-04-15T13:00:00Z",
+    "createdAt": "2025-04-15T09:00:00Z",
+    "updatedAt": "2025-04-15T10:00:00Z"
+}
+
+### Delete a flight
+DELETE http://localhost:3001/flights/BA204
+
+### Delete all rules
+DELETE http://localhost:3001/rules HTTP/1.1
+
+### Create a Rule
+POST http://localhost:3001/rules HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": "wifi-alert",
+    "name": "Notify if wifi is down",
+    "condition": {
+        "status": "Wifi-Down",
+        "beforeDepartureMins": 60
+    },
+    "messageTemplate": "Sorry! Flight BA203, BA204 does not have wifi available. Current status: Wifi-Down.",
+    "isActive": true,
+    "createdAt": "2025-04-15T09:00:00Z",
+    "updatedAt": "2025-04-15T09:00:00Z"
+}
+
+# {
+#     "id": "D240",
+#     "name": "Notify if delayed",
+#     "condition": {
+#         "status": "Delayed",
+#         "beforeDepartureMins": 24
+#     },
+#     "messageTemplate": "Heads up! Flight BA201 is delayed. Current status: Delayed.",
+#     "isActive": true,
+#     "createdAt": "2025-04-15T09:00:00Z",
+#     "updatedAt": "2025-04-15T09:00:00Z"
+# }
+
+# {
+#     "id": "On-Time",
+#     "name": "Notify if on time",
+#     "condition": {
+#         "status": "On-Time",
+#         "beforeDepartureMins": 60
+#     },
+#     "messageTemplate": "Heads up! Flight BA202 is on time. Current status: On-Time.",
+#     "isActive": true,
+#     "createdAt": "2025-04-15T09:00:00Z",
+#     "updatedAt": "2025-04-15T09:00:00Z"
+# }
+
+### Get all rules
+GET http://localhost:3001/rules HTTP/1.1
+
+### Get Rule by ID
+GET http://localhost:3001/rules/wifi-alert HTTP/1.1
+
+### Update a Rule
+PUT http://localhost:3001/rules/D240 HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": "D240",
+    "name": "Notify if delayed",
+    "condition": {
+        "status": "Delayed",
+        "beforeDepartureMins": 240
+    },
+    "messageTemplate": "Heads up! Flight {{flightNumber}} is delayed. Current status: {{status}}.",
+    "isActive": true,
+    "createdAt": "2025-04-15T09:00:00Z",
+    "updatedAt": "2025-04-15T09:00:00Z"
+}
+
+### Delete a rule
+DELETE http://localhost:3001/rules/D240
+
+### Evaluate Rule for Flight
+POST http://localhost:3001/evaluate HTTP/1.1
+Content-Type: application/json
+
+{
+  "flightId": "BA201"
+}

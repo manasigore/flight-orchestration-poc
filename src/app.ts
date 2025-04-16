@@ -1,10 +1,10 @@
-// src/app.ts
 import Fastify from "fastify";
 import { registerDb } from "./plugins/db.ts";
 import diagnosticsChannel from "@fastify/diagnostics-channel";
 import { evaluateRoutes } from "handlers/evaluateRoutes.ts";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
+import fastifyCors from "@fastify/cors";
 
 export async function buildApp() {
   const app = Fastify();
@@ -18,7 +18,7 @@ export async function buildApp() {
       },
       servers: [
         {
-          url: "http://localhost:3000",
+          url: "http://localhost:3001",
         },
       ],
     },
@@ -30,9 +30,12 @@ export async function buildApp() {
     },
   });
   await app.register(diagnosticsChannel);
+  await app.register(fastifyCors, {
+    origin: "http://localhost:3000",
+  });
   await registerDb(app);
-  await evaluateRoutes(app);
+  //   await evaluateRoutes(app);
+  await app.register(evaluateRoutes);
 
-  // Routes will be added here later
   return app;
 }

@@ -1,4 +1,15 @@
 import React, { useState } from "react";
+import {
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
+} from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 type EvalResult = {
   ruleId: string;
@@ -30,34 +41,63 @@ export const EvaluateForm: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Evaluate Flight Automation</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Enter Flight ID"
-          value={flightId}
-          onChange={(e) => setFlightId(e.target.value)}
-        />
-        <button type="submit">Evaluate</button>
-      </form>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
+        Evaluate Flight
+      </Typography>
+
+      <Box component="form" onSubmit={handleSubmit} sx={{ mb: 3 }}>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+          <TextField
+            fullWidth
+            label="Flight ID"
+            variant="outlined"
+            value={flightId}
+            onChange={(e) => setFlightId(e.target.value)}
+            size="small"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            startIcon={<PlayArrowIcon />}
+          >
+            Evaluate
+          </Button>
+        </Box>
+      </Box>
 
       {results && (
-        <div style={{ marginTop: "1rem" }}>
-          <h3>Matching Rule:</h3>
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Results:
+          </Typography>
           {results.length === 0 ? (
-            <p>No rules matched.</p>
+            <Typography color="text.secondary">
+              No matching rules found.
+            </Typography>
           ) : (
-            <ul>
-              {results.map((r) => (
-                <li key={r.ruleId}>
-                  <strong>{r.ruleId}</strong>: {r.message}
-                </li>
+            <List>
+              {results.map((r, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    bgcolor: "background.paper",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 1,
+                    mb: 1,
+                  }}
+                >
+                  <ListItemText
+                    primary={r.message}
+                    secondary={`Rule ID: ${r.ruleId}`}
+                  />
+                </ListItem>
               ))}
-            </ul>
+            </List>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </Paper>
   );
 };

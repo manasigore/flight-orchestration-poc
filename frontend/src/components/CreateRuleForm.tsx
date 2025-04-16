@@ -1,51 +1,37 @@
 import React, { useState } from "react";
+import {
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Switch,
+  FormControlLabel,
+  Stack,
+} from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 
 export const CreateRuleForm: React.FC = () => {
   const [form, setForm] = useState({
-    id: "",
     name: "",
+    messageTemplate: "",
     status: "",
     beforeDepartureMins: "",
-    messageTemplate: "",
     isActive: true,
   });
-
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const inputValue =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setForm((prev) => ({ ...prev, [name]: inputValue }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.id || !form.name || !form.messageTemplate) {
-      setError(
-        "Please fill in all required fields: ID, Name, and Message Template."
-      );
-      return;
-    }
-
-    const beforeMins = Number(form.beforeDepartureMins);
-    if (form.beforeDepartureMins && (isNaN(beforeMins) || beforeMins < 0)) {
-      setError('Please enter a valid number for "Minutes before departure".');
-      return;
-    }
-
-    const rulePayload = {
-      id: form.id,
+    const payload = {
+      id: uuidv4(),
       name: form.name,
+      messageTemplate: form.messageTemplate,
       condition: {
         status: form.status || undefined,
-        beforeDepartureMins: form.beforeDepartureMins ? beforeMins : undefined,
+        beforeDepartureMins: form.beforeDepartureMins
+          ? parseInt(form.beforeDepartureMins)
+          : undefined,
       },
-      messageTemplate: form.messageTemplate,
       isActive: form.isActive,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -55,85 +41,97 @@ export const CreateRuleForm: React.FC = () => {
       const res = await fetch("http://localhost:3000/rules", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rulePayload),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        setSuccess(true);
-        setError(null);
         setForm({
-          id: "",
           name: "",
+          messageTemplate: "",
           status: "",
           beforeDepartureMins: "",
-          messageTemplate: "",
           isActive: true,
         });
       } else {
-        const err = await res.json();
-        setError(err.message || "Unknown error");
-        setSuccess(false);
+        const error = await res.json();
+        alert(error.error || "Failed to create rule");
       }
     } catch (err: any) {
-      setError(err.message);
+      alert(err.message);
     }
   };
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
   return (
-    <div>
-      <h2>Create Automation</h2>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
+        Create Rule
+      </Typography>
+
       <form onSubmit={handleSubmit}>
-        <input
-          name="id"
-          value={form.id}
-          onChange={handleChange}
-          placeholder="Rule ID"
-          required
-        />
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Rule Name"
-          required
-        />
-        <input
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          placeholder="Trigger Status (e.g., Delayed)"
-        />
-        <input
-          name="beforeDepartureMins"
-          type="number"
-          value={form.beforeDepartureMins}
-          onChange={handleChange}
-          placeholder="Minutes before departure"
-        />
-        <textarea
-          name="messageTemplate"
-          value={form.messageTemplate}
-          onChange={handleChange}
-          placeholder="Message Template"
-          required
-        />
-        <label>
-          <input
-            type="checkbox"
-            name="isActive"
-            checked={form.isActive}
+        <Stack spacing={2}>
+          <TextField
+            fullWidth
+            label="Rule Name"
+            name="name"
+            value={form.name}
             onChange={handleChange}
+            required
           />
-          Active
-        </label>
-
-        <button type="submit">Create Automation</button>
+          <TextField
+            fullWidth
+            label="Message Template"
+            name="messageTemplate"
+            value={form.messageTemplate}
+            onChange={handleChange}
+            multiline
+            rows={3}
+            required
+            helperText="Use {flightNumber} as a placeholder"
+          />
+          <TextField
+            fullWidth
+            label="Trigger Status"
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            helperText="Leave empty to match any status"
+          />
+          <TextField
+            fullWidth
+            label="Minutes before departure"
+            name="beforeDepartureMins"
+            type="number"
+            value={form.beforeDepartureMins}
+            onChange={handleChange}
+            helperText="Leave empty to ignore timing"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                name="isActive"
+                checked={form.isActive}
+                onChange={handleChange}
+              />
+            }
+            label="Active"
+          />
+          <Button type="submit" variant="contained" color="primary">
+            Create Rule
+          </Button>
+        </Stack>
       </form>
-
-      {success && (
-        <p style={{ color: "green" }}>✅ Automation created successfully!</p>
-      )}
-      {error && <p style={{ color: "red" }}>❌ {error}</p>}
-    </div>
+    </Paper>
   );
 };

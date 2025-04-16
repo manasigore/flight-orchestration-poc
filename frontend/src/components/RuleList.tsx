@@ -1,4 +1,16 @@
 import React, { useEffect, useState } from "react";
+import {
+  Paper,
+  Typography,
+  List,
+  ListItem,
+  TextField,
+  Button,
+  Switch,
+  Box,
+  Stack,
+  FormControlLabel,
+} from "@mui/material";
 
 type Rule = {
   id: string;
@@ -82,6 +94,7 @@ export const RuleList: React.FC = () => {
   const saveEdit = async () => {
     const updated = {
       ...(editForm as Rule),
+      isActive: Boolean(editForm.isActive),
       updatedAt: new Date().toISOString(),
     };
 
@@ -105,72 +118,118 @@ export const RuleList: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>📋 Active Automation</h2>
-      {error && <p style={{ color: "red" }}>Failed to load rules: {error}</p>}
-      <ul style={{ listStyleType: "none", padding: 0 }}>
+    <Paper sx={{ maxWidth: "600px", mb: 2, p: 2 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
+        Automation Rules
+      </Typography>
+      {error && (
+        <Typography color="error" gutterBottom>
+          Failed to load rules: {error}
+        </Typography>
+      )}
+      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
         {rules.map((rule) => (
-          <li key={rule.id}>
+          <ListItem
+            key={rule.id}
+            sx={{
+              flexDirection: "column",
+              alignItems: "stretch",
+              border: "1px solid #e0e0e0",
+              borderRadius: 1,
+              mb: 1,
+              p: 2,
+            }}
+          >
             {editingId === rule.id ? (
-              <>
-                <input
+              <Stack spacing={2}>
+                <TextField
+                  fullWidth
+                  label="Name"
                   name="name"
                   value={editForm.name}
                   onChange={handleEditChange}
                 />
-                <br />
-                <textarea
+                <TextField
+                  fullWidth
+                  label="Message Template"
                   name="messageTemplate"
+                  multiline
+                  rows={2}
                   value={editForm.messageTemplate}
                   onChange={handleEditChange}
                 />
-                <br />
-                <input
+                <TextField
+                  fullWidth
+                  label="Trigger Status"
                   name="status"
-                  placeholder="Trigger Status"
                   value={editForm.condition?.status || ""}
                   onChange={handleEditChange}
                 />
-                <input
+                <TextField
+                  fullWidth
+                  label="Minutes before departure"
                   name="beforeDepartureMins"
                   type="number"
                   value={editForm.condition?.beforeDepartureMins || 0}
                   onChange={handleEditChange}
                 />
-                <br />
-                <label>
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={editForm.isActive}
-                    onChange={handleEditChange}
-                  />{" "}
-                  Active
-                </label>
-                <br />
-                <button onClick={saveEdit}>💾 Save</button>
-                <button onClick={cancelEdit}>✖ Cancel</button>
-              </>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="isActive"
+                      checked={editForm.isActive}
+                      onChange={handleEditChange}
+                    />
+                  }
+                  label="Active"
+                />
+                <Box
+                  sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}
+                >
+                  <Button variant="outlined" onClick={saveEdit}>
+                    Save
+                  </Button>
+                  <Button onClick={cancelEdit}>Cancel</Button>
+                </Box>
+              </Stack>
             ) : (
-              <>
-                <strong>{rule.name}</strong> ({rule.id})<br />
-                Template: <code>{rule.messageTemplate}</code>
-                <br />
-                Status: {rule.condition.status || "Any"}
-                <br />
-                Trigger: {rule.condition.beforeDepartureMins} mins before
-                departure
-                <br />
-                Active: {rule.isActive ? "✅" : "❌"}
-                <br />
-                <button onClick={() => startEditing(rule)}>✏ Edit</button>
-                <button onClick={() => deleteRule(rule.id)}>🗑 Delete</button>
-              </>
+              <Box sx={{ width: "100%" }}>
+                <Typography variant="h6" gutterBottom>
+                  {rule.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  ID: {rule.id}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  Message: <code>{rule.messageTemplate}</code>
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  Status: {rule.condition.status || "Any"}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  Trigger: {rule.condition.beforeDepartureMins} mins before
+                  departure
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  Active: {rule.isActive ? "✅" : "❌"}
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                  <Button variant="outlined" onClick={() => startEditing(rule)}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => deleteRule(rule.id)}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              </Box>
             )}
-            <hr />
-          </li>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Paper>
   );
 };
